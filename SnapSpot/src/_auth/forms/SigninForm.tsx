@@ -2,11 +2,13 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/shared/Loader";
 import { useToast } from "@/components/ui/use-toast";
+
 import { SigninValidation } from "@/lib/validation";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
@@ -102,7 +104,7 @@ const SigninForm = () => {
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
-            Don&apos;t have an account?
+            Don't have an account?
             <Link
               to="/sign-up"
               className="text-primary-500 text-small-semibold ml-1">

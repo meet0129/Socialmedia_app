@@ -17,7 +17,7 @@ export async function createUserAccount(user: INewUser) {
         const avatarUrlString = avatars.getInitials(user.name);
 
         // Convert the string to a URL object
-        const avatarUrl = new URL(avatarUrlString);
+        const avatarUrl = avatarUrlString; // It's already a string
 
         const newUser = await saveUserToDB({
             accountId: newAccount.$id,
@@ -39,49 +39,82 @@ export async function saveUserToDB(user: {
     accountId: string;
     email: string;
     name: string;
-    imageUrl: URL; // Accepts URL type
+    imageUrl: string;
     username?: string;
-}) {
+  }) {
     try {
-        const newUser = await databases.createDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
-            ID.unique(),
-            user,
-        );
-        return newUser;
+      const newUser = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        ID.unique(),
+        user
+      );
+  
+      return newUser;
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-}
+  }
 
-export async function signInAccount(user :{ email: string,password: string})
-{
-    try{
-        const session = await account.createSession(user.email , user.password);
-        return session;
+export async function signInAccount(user: { email: string; password: string }) {
+    try {
+      // Check if there's an active session
+      const currentSession = await account.get();
+      if (currentSession) {
+        // Optional: log out the current session if re-login is required
+        await account.deleteSession("current");
+      }
+    } catch (error) {
+      // If no session exists, account.get() might throw an error
+      console.log("No active session found, proceeding with login.");
     }
-    catch(error){
-        console.log(error);
-        
+    try {
+      const session = await account.createEmailPasswordSession(user.email, user.password);
+      
+      return session;
+    } catch (error) {
+      console.error("Error logging in:", error);
     }
-}
+  }
+
+export async function getAccount() {
+    try {   
+      const currentAccount = await account.get();
+  
+      return currentAccount;
+    } catch (error) {
+    //   console.log(error);
+    }
+  }
 
 export async function getCurrentUser() {
     try {
-        const currentAccount = await account.get();
-        
-        if(!currentAccount) throw Error;
-        const currentUser = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
-            [Query.equal("accountId",currentAccount.$id )]
-        );
-        if(!currentAccount) throw Error;
-
-        return currentUser.documents[0];
+      const currentAccount = await getAccount();
+  
+      if (!currentAccount) throw Error;
+  
+      const currentUser = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        [Query.equal("accountId", currentAccount.$id)]
+      );
+      return currentUser.documents[0];
+      console.log(currentUser);
     } catch (error) {
-        console.log(error);
-        return null;
+      console.log(error);
+      return null;
     }
-}
+  }
+
+  export async function signOutAccount()
+  {
+    try{
+        const session= await account.deleteSession("current");
+        return session;
+        console.log("session deleted" + session);
+        
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
