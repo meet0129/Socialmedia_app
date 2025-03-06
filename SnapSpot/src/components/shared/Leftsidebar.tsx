@@ -1,5 +1,4 @@
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-
 import { INavLink } from "@/types";
 import { sidebarLinks } from "@/constants";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,7 @@ const LeftSidebar = () => {
                 }`}>
                 <NavLink
                   to={link.route}
-                  className="flex gap-4 items-center p-6">
+                  className="flex gap-4 items-center p-4">
                   <img
                     src={link.imgURL}
                     alt={link.label}
